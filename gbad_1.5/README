@@ -1,0 +1,51 @@
+RELEASE NOTES
+
+Version 1.5
+
+- Added various performance fixes to speed-up GBAD's execution time.
+- Added checks in gbad.c before calls to strncmp() to test and make sure that 
+  the label being compared to "SUB_" is a string, and check for at least
+  one edge (i.e., anomaly is not just an instance of a single SUB_ vertex).
+- Removed obsolete function.
+- Put check for outputLevel > 2 for outputting compressed graph.
+
+Version 1.4
+
+- Modified GBAD-P algorithm so that it now goes off of the best substructure
+  at each iteration, rather than continually going off of the most anomalous
+  substructure.
+- Fixed bug in GBAD-P logic that was incorrectly calculating the number of
+  instances, and thus affecting the probabilistic score.
+- Changed logic to allow for anlyzing edges that go between two SUB_#
+  substructures that are the same (e.g., an edge between a SUB_1 and a SUB_1).
+  Also, now accepting single vertices, thus allowing for the scenario of
+  a self-edge from a SUB_#.
+- Added code in compress.c to check that the file that needs to be created
+  can be created.
+
+Version 1.3
+
+- Fixed GBAD-P algorithm such that it now outputs ALL instances that have
+  the same anomalous score, rather than just the first one that is most
+  anomalous.
+- Fixed bug in FlagAnomalousVerticesAndEdges (existed in all previous versions 
+  of GBAD).
+
+Version 1.2
+
+- Re-implemented GBAD-MDL algorithm so that it now is more like the actual 
+  algorithm, and is more accurate in reporting the normative pattern.  The basic
+  change was to use a threshold of 0.0 when searching for the normative pattern,
+  then using the -mdl threshold to find those non-normative substructures that 
+  are closest to the normative pattern without matching exactly (and are under 
+  the user-specified -mdl threshold).
+- For the GBAD-MPS algorithm, an entire instance is anomalous.  So, changed the
+  reporting the anomaly to report the complete instance and not report any
+  individual vertices or edges as anomalies.
+
+Version 1.1
+
+- Fix to matching on SUB_# when using the GBAD-P approach
+- Addition of tracking so that across multiple iterations (like with GBAD-P) we 
+  will know what the original vertex and example (XP) numbers were.
+

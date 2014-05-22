@@ -1,0 +1,351 @@
+************************************
+************************************
+
+Graph-Based Anomaly Detection (GBAD)
+
+************************************
+************************************
+
+====================================
+FILES
+====================================
+
+The GBAD tar file contains the following files:
+
+./bin/ -- directory of executables (initially empty)
+./COPYRIGHT -- file containing the GBAD copyright notice
+./graphs/ -- directory containing some sample graph input files
+./gui/ -- directory containing the java GUI source code and make file
+./README - file containing brief directions on how to build/run GBAD (this file)
+./src/ - directory containing the C GBAD source code and make file
+./*Users Manual* -- GBAD user's manual and GUI tutorial
+
+====================================
+INSTALLATION
+====================================
+
+GBAD uses the standard make facility to build its application.  In order to 
+build the GBADapplication, you should perform the following steps:
+
+1.	Move to the /src directory
+2.	At the command prompt, enter: make.  This will compile the GBAD program.
+3.	At the command prompt, enter: make install.  This will copy the GBAD
+        executable to the ./bin directory
+
+The GBAD GUI uses the standard make facility to build its application.  In order
+to build the GBAD GUI, you should perform the following steps:
+
+1.	Move to the /gui directory
+2.	At the command prompt, enter: make.  This will compile the GBAD GUI.
+
+NOTE:  In order to properly use the GUI, you must install the third-party
+AT&T GraphViz utilities (e.g., dotty), or any other visualization tool that
+can render .dot files.
+
+====================================
+DATA FORMAT
+====================================
+
+The input to the GBAD application is comprised of a textual representation of 
+a graph.
+
+====================================
+Input Graph Format
+====================================
+
+The input file can consist of one or more graphs. Each graph is prefaced (on a 
+line by itself) by the label "XP". However, if there is only one graph in the
+file, then the "XP" label can be omitted.  
+
+Each graph is a sequence of vertices and edges.  
+
+Vertices
+========
+
+A vertex is defined as:
+
+v <#> "<label>" 
+
+where <#> is a unique vertex ID for the graph and <label> is any string or
+real number. Strings containing white-space or the comment character (see 
+below) must be surrounded by double-quotes. Vertex IDs for a graph must start 
+at 1 and increase by 1 for each successive vertex.  In addition, a vertex must
+be defined before an edge that uses that vertex is defined.
+
+Edges
+=====
+
+An edge is defined as one of the following:
+
+e <vertex 1 #> <vertex 2 #>  " <label> "
+d <vertex 1 #> <vertex 2 #> " <label> "
+u <vertex 1 #> <vertex 2 #> "<label> "
+
+where <vertex 1 #> and <vertex 2 #> are the vertex ID's for the source vertex 
+and the target vertex respectively, and <label> is any string or real number. 
+Strings containing white-space or the comment character (see below) must be 
+surrounded by double-quotes. Edges beginning with "e" are assumed directed 
+unless the option "-undirected" is specified at the command line (see below), 
+in which case all "e" edges become undirected. Edges beginning with "d" are 
+always directed, and edges beginning with "u" are always undirected. 
+
+Comments
+========
+
+You can also choose to put comments in your graph input file.  Comments are 
+designated by the percent "%" sign. Anything after a "%" until the end of the 
+line will be ignored (unless the "%" is part of a quoted label).
+
+Example
+=======
+
+As an example, if you were trying to represent that a cat is an animal, the 
+graph might look like the following:
+
+% Cat
+v 1 cat
+v 2 animal
+d 1 2 is-a
+
+However, if the edge were directed the other way (eg. d 2 1 is-a), that would 
+imply that the animal is a cat, which is not necessarily true.  It should be 
+noted that GBAD would not complain if you made that relationship, but the 
+results would probably not be what you desired.
+
+Some simple example graph input files are included in the GBAD kit which
+demonstrate the abilities of each of the GBAD algorithms.
+
+====================================
+Output
+====================================
+
+The output from executing GBAD, consists of textual information that is 
+essentially represented in the same format as the input.  In addition to the 
+patterns and anomalies that are discovered, the output includes options, 
+parameters and other information about the run.  By default, the output is 
+displayed to the user's screen, or to wherever the user directed the output 
+(for example, with the Unix ">" command).
+
+
+====================================
+EXECUTION
+====================================
+
+The purpose of the GBAD application is to discover anomalous substructure 
+instances (and their specific anomalous vertices/edges) in a specified input 
+graph.  The ability to discover these anomalies is controlled by various 
+user-specified parameters, which control the algorithms that are used, as well 
+as the length and size of the discovery space (among other things).
+
+Command
+=======
+
+Currently, GBAD only has a "command-line" interface.  In order to run GBAD, 
+you must be logged on to the machine where the application was downloaded and 
+installed.  From a command-line prompt, the command would be as follows:
+
+	gbad <options> <graph input file>
+
+where "gbad" is the name of the executable.  The above example assumes that you
+are running the application from the same directory where the executable resides
+(which is probably in ./bin/).  If the desire is to run the application from 
+another directory, gbad will have to be "pathed".
+
+Also, <options> are the user-specified parameters (see below), and 
+<graph input file> is the name (and path) of the graph input file 
+(ex. graph_with_modification.g)
+
+Options
+=======
+
+Because of the nature of graphs, and the varying ways that graphs can be 
+dissected and analyzed, there are several command-line options available to the
+user.  Each of these options can result in different results when used together
+or by themselves.
+
+The only required parameters for GBAD are the algorithm desired (not choosing an
+algorithm will result in no anomaly detection being peformed), and its associated
+numeric parameter, and the name of the graph input file.
+
+NOTE:  The following assumes that the user has some knowledge of algorithms and
+graph theory.
+
+Possible options available to the user (in alphabetical order) are as follows:
+
+-beam <#>
+This parameter specifies the beam width of GBAD's normative pattern search. 
+Only the best beam substructures (or all the substructures with the best beam 
+values) are kept on the frontier of the search. The exact meaning of the beam 
+width is determined by the -valuebased option described below. The default 
+value for this setting is 4.
+
+-eval <#>
+GBAD has three methods available for evaluating candidate (normative) 
+substructures:
+
+Minimum Description Length (MDL) - 1 (MDL is the default evaluation method)
+Size - 2   (The size measure is faster to compute than the MDL measure, but 
+less consistent)
+
+Refer to the information on the SUBDUE web-site (www.subdue.org) for more
+information regarding this parameter.
+
+-limit <#>
+The number of different substructures to consider. The default value is 
+computed based on the input graph as #Edges / 2.
+
+-maxAnomalousScore <#.#>
+This argument specifies the maximum anomalous score for reporting any 
+potential anomalies.   If the best anomaly (i.e., the anomaly with the lowest 
+score) has a score greater than this value, no anomaly will be reported.  The 
+default value for this setting is no limit on how high the score can be.
+
+-maxsize <#>
+This argument specifies the maximum number of vertices that can be in a 
+reported substructure. Larger substructures are pruned from the search space. 
+The default value for this setting is the number of vertices in the input graph.
+
+-mdl <.#>
+This option initiates the GBAD-MDL minimum description length algorithm as part 
+of the anomaly detection phase.  The GBAD-MDL algorithm uses the Minimum 
+Description Length (MDL) heuristic to discover the best substructure in a graph, 
+and then subsequently examines all of the instances for similar patterns.  Using 
+an inexact matching approach, instances that are the "closest" (without matching 
+exactly) in structure to the best structure (i.e., compresses the graph the most), 
+where there is a tradeoff in the cost of transforming the instance to match the 
+structure (matchcost), as well as the frequency with which the instance occurs, 
+where the lower the value, the more anomalous the structure.  
+
+The parameter to the -mdl option is the maximum amount of change that the user is 
+willing to accept. When specifying this option, you must give it a floating-point 
+value between 0.0 and 1.0, where the closer the value to 0.0, the less change one 
+is willing to accept as anomalous.
+
+(NOTE: Each of the anomaly detection algorithms are mutually exclusive, and should
+be run individually.)
+
+-minAnomalousScore <#.#>
+This argument specifies the minimum anomalous score for reporting any potential 
+anomalies.   If the best anomaly (i.e., the anomaly with the lowest score) has a 
+score lower than this value, no anomaly will be reported.  The default value for 
+this setting is 0.0 (i.e., no minimum).
+
+-minsize <#>
+This argument specifies the minimum number of vertices that must be in a 
+substructure before it is reported. The default value for this setting is 1.
+
+-mps <.#>
+This option initiates the GBAD-MPS maximum partial substructure algorithm as part
+of the anomaly detection phase.  The GBAD-MPS algorithm examines all instances of
+parent (or ancestral) substructures that are missing various edges and vertices.
+The value associated with the parent instances represents the cost of 
+transformation (i.e., how much change would have to take place for the instance 
+to match the best substructure).  Thus, the instance with the lowest cost 
+transformation (if more than one instance have the same value, the frequency of
+the instance's structure will be used to break the tie if possible) is 
+considered the anomaly, as it is closest (maximum) to the best substructure 
+without being included on the normative substructure's instance list.  
+
+The parameter to the -mps option is the maximum amount of change that the user is 
+willing to accept. When specifying this option, you must give it a floating-point 
+value between 0.0 and 1.0, where the closer the value to 0.0, the less change one 
+is willing to accept as anomalous.
+
+(NOTE: Each of the anomaly detection algorithms are mutually exclusive, and should
+be run individually.)
+
+-norm <#>
+This argument tells the discovery process which normative pattern they want to
+be considered as the best substructure.  The default is the first one (i.e., the
+best one), but there may be a situation where the user knows that another
+substructure is better.
+
+-nsubs <#>
+This argument specifies the maximum length of the list of best substructures 
+found during the discovery. The default value for this setting is 3.
+
+-output #
+This argument controls the amount of GBAD's screen output. Valid values are:
+(1) Print best substructure found at each iteration.
+(2) Print -nsubs best substructures. (This is the default value.)
+(3) Same as (2), plus prints the instances of the best substructures.
+(4) Same as (3), plus prints substructure countdown and the best substructure found so far. 
+(5) Same as (4), plus prints each substructure considered.
+
+-overlap
+GBAD normally will not allow overlap among the instances of a substructure. 
+Specifying this argument will allow overlap. During graph compression an 
+OVERLAP_<iteration> edge is added between each pair of overlapping instances, 
+and external edges to shared vertices are duplicated to all instances sharing
+ the vertex. Allowing overlap slows GBAD considerably.
+
+-prob <#>
+This option initiates the GBAD-P probabilistic algorithm as part of the anomaly
+detection phase.  The GBAD-P algorithm examines all extensions to the normative
+substructure with the lowest probability, and hence the most likely to be an 
+anomaly.  The GBAD-P functionality examines the probability of extensions to the
+normative pattern to determine if there is an instance that includes edges and 
+vertices that are probabilistically less than other possible extensions.  
+
+The parameter to the -prob option is the number of iterations made over the 
+input graph in which first, the best substructure from the previous iteration is
+used to compress the graph for use in the next iteration, then for subsequent 
+iterations (if a value greater than 2 was specified), the previously discovered 
+anomalous instance(s) are compressed for use in the next iteration, and so on. 
+When specifying this option, you must give it an integer value, and in order to 
+discover any anomalies with the GBAD-P algorithm, a minimum value of 2 must be 
+specified.
+
+(NOTE: Each of the anomaly detection algorithms are mutually exclusive, and 
+should be run individually.)
+
+-prune
+This option tells GBAD to prune the search space by discarding substructures 
+whose value is less than that of their parent's substructure. Since the 
+evaluation heuristics are not monotonic, pruning may cause GBAD to miss some 
+good substructures, and subsequently some relevant anomalies.  However, it 
+will improve the running time. The default is no pruning.
+
+-undirected
+GBAD assumes that edges in the input graph file defined using `e' are directed 
+edges. Specifying this argument makes these edges undirected. Note that graph 
+file edges defined with 'u' are always undirected, and edges defined with 'd' 
+are always directed.
+
+-valuebased
+Normally, GBAD's beam width implies that only the beam best substructures are 
+kept on the frontier of the search. If the -valuebased option is given, then 
+the beam width is interpreted as keeping all the substructures with the top 
+beam values on the frontier of the search.
+
+
+
+==========
+GUI
+==========
+
+For information on how to use the GBAD GUI, refer to the User's Manual
+included in this kit.
+
+
+==========
+REFERENCES
+==========
+
+William Eberle, Lawrence Holder and Diane Cook. 
+"Identifying Threats Using Graph-Based Anomaly Detection," 
+Machine Learning in Cyber-Trust, 
+J. Tsai and P. Yu (eds.), 
+May 2009.
+
+William Eberle and Lawrence Holder. 
+"Mining for Insider Threats in Business Transactions and Processes," 
+Computational Intelligence in Data Mining (CIDM), 
+IEEE Symposium Series on Computational Intelligence, 
+March 30- April 2, 2009.
+
+William Eberle and Lawrence Holder. 
+"Anomaly Detection in Data Represented as Graphs." 
+Intelligent Data Analysis: An International Journal. 
+Volume 11, Number 6, pp. 663-689. 
+2007. 

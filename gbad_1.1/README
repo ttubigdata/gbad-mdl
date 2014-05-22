@@ -1,0 +1,7 @@
+RELEASE NOTES
+
+Version 1.1
+
+- Fix to matching on SUB_# when using the GBAD-P approach
+- Addition of tracking so that across multiple iterations (like with GBAD-P) we will know what the original vertex and example (XP) numbers were.
+
